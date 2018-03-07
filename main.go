@@ -75,11 +75,11 @@ func main() {
 		bodyReader := bytes.NewBuffer(r.Body)
 		doc, err := goquery.NewDocumentFromReader(bodyReader)
 		if err != nil {
-			fmt.Printf("failed to create the document from %s, err: %v\n", string(res.Body), err)
+			fmt.Printf("failed to create the document from %s, err: %v\n", string(r.Body), err)
 		}
 		whi, err := parser.Parse(doc)
 		if err != nil {
-			fmt.Printf("failed to parse the document from %s, err: %v\n", string(res.Body), err)
+			fmt.Printf("failed to parse the document from %s, err: %v\n", string(r.Body), err)
 		}
 		if info.IsValid != 1 {
 			return
