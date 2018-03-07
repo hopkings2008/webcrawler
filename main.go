@@ -2,10 +2,14 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"runtime"
 
+	"github.com/PuerkitoBio/goquery"
 	"github.com/gocolly/colly"
 	"github.com/gotk3/gotk3/gtk"
+	_ "github.com/hopkings/webcrawler/cainiao"
+	"github.com/hopkings/webcrawler/parser_factory"
 	"github.com/sourcegraph/webloop"
 )
 
@@ -18,11 +22,14 @@ func main() {
 	ctx := webloop.New()
 	view := ctx.NewView()
 	defer view.Close()
+	warehouseHandle, err := os.Create("/tmp/dat2")
+	defer warehouseHandle.Close()
 	// Instantiate default collector
 	c := colly.NewCollector(
 		// MaxDepth is 1, so only the links on the scraped page
 		// is visited, and no further links are followed
-		colly.MaxDepth(1),
+		colly.MaxDepth(3),
+		colly.AllowedDomains("https://market.c.cainiao.com"),
 	)
 
 	// On every a element which has href attribute call callback
@@ -48,9 +55,35 @@ func main() {
 		if err != nil {
 			fmt.Printf("Failed to run JavaScript: %s", err)
 		}
-		gotbody, _ := res.(string)
-		r.Body = []byte(gotbody)
-		fmt.Printf("%s\n", string(r.Body))
+		content, _ := res.(string)
+		r.Body = []byte(content)
+
+		// get the parser from parser_factory.
+		pf, err := parser_factory.BuildFactory(r.Request.URL.String())
+		if err != nil {
+			fmt.Printf("failed to build factory from %s, err: %v\n", r.Request.URL.String(), err)
+			return
+		}
+		// create the parser.
+		parser, err := pf.Build()
+		if err != nil {
+			fmt.Printf("failed to get the parser, err: %v\n", err)
+			return
+		}
+		// got the document by using goquery.
+		doc, err := goquery.NewDocumentFromResponse(r)
+		if err != nil {
+			fmt.Printf("failed to create the document from %s, err: %v\n", string(res.Body), err)
+		}
+		whi, err := parser.Parse(doc)
+		if err != nil {
+			fmt.Printf("failed to parse the document from %s, err: %v\n", string(res.Body), err)
+		}
+		if info.IsValid != 1 {
+			return
+		}
+		warehouseHandle.WriteString(whi.String())
+		warehouseHandle.Sync()
 	})
 
 	// Start scraping on https://en.wikipedia.org
