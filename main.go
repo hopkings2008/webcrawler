@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"runtime"
 
 	"github.com/gocolly/colly"
 	"github.com/gotk3/gotk3/gtk"
@@ -41,14 +42,15 @@ func main() {
 		view.Load(string(r.Body), "https://market.c.cainiao.com")
 		err := view.Wait()
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Failed to load URL: %s", err)
+			fmt.Printf("Failed to load URL: %s", err)
 		}
 		res, err := view.EvaluateJavaScript("document.documentElement.outerHTML")
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Failed to run JavaScript: %s", err)
+			fmt.Printf("Failed to run JavaScript: %s", err)
 		}
-		r.Body = res
-		//fmt.Printf("%s\n", res)
+		gotbody, _ := res.(string)
+		r.Body = []byte(gotbody)
+		fmt.Printf("%s\n", string(r.Body))
 	})
 
 	// Start scraping on https://en.wikipedia.org
