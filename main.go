@@ -20,17 +20,19 @@ func main() {
 		runtime.LockOSThread()
 		gtk.Main()
 	}()
-	ctx := webloop.New()
-	view := ctx.NewView()
-	defer view.Close()
+	ctx := webloop.New()	
 	warehouseHandle, err := os.Create("./warehouseinfo.txt")
+	if err != nil {
+		fmt.Printf("failed to create warehouseinfo.txt, err: %v\n", err)
+		return
+	}
 	defer warehouseHandle.Close()
 	// Instantiate default collector
 	c := colly.NewCollector(
 		// MaxDepth is 1, so only the links on the scraped page
 		// is visited, and no further links are followed
 		colly.MaxDepth(3),
-		colly.AllowedDomains("https://market.c.cainiao.com"),
+		//colly.AllowedDomains("https://market.c.cainiao.com"),
 	)
 
 	// On every a element which has href attribute call callback
@@ -47,6 +49,8 @@ func main() {
 	})
 
 	c.OnResponse(func(r *colly.Response) {
+		view := ctx.NewView()
+		defer view.Close()
 		view.Load(string(r.Body), "https://market.c.cainiao.com")
 		err := view.Wait()
 		if err != nil {
@@ -58,6 +62,8 @@ func main() {
 		}
 		content, _ := res.(string)
 		r.Body = []byte(content)
+
+		fmt.Printf("got body: %s\n", string(r.Body))
 
 		// get the parser from parser_factory.
 		pf, err := parser_factory.BuildFactory(r.Request.URL.String())
@@ -81,7 +87,7 @@ func main() {
 		if err != nil {
 			fmt.Printf("failed to parse the document from %s, err: %v\n", string(r.Body), err)
 		}
-		if info.IsValid != 1 {
+		if whi.IsValid != 1 {
 			return
 		}
 		warehouseHandle.WriteString(whi.String())
