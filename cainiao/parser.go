@@ -1,7 +1,7 @@
 package cainiao
 
 import (
-	//"fmt"
+	"fmt"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
@@ -16,7 +16,6 @@ func (yp *CaiNiaoParser) Parse(doc *goquery.Document) (*parser_factory.Warehouse
 	//get the location
 	whi := parser_factory.CreateWarehouseInfo()
 	doc.Find(".goods-detail-left div").Each(func(i int, sel *goquery.Selection) {
-		//udata := mahonia.NewDecoder("gbk").ConvertString(sel.Text())
 		val, exists := sel.Attr("data-reactid")
 		if !exists {
 			return
@@ -25,7 +24,8 @@ func (yp *CaiNiaoParser) Parse(doc *goquery.Document) (*parser_factory.Warehouse
 		case "81":
 			{
 				udata := yp.trimStr(sel.Text())
-				if udata == "仓库地址" {
+				fmt.Printf("udata: %s\n", udata)
+				if strings.Contains(udata, "仓库地址") {
 					whi.IsValid = 1
 				} else {
 					return
@@ -35,20 +35,50 @@ func (yp *CaiNiaoParser) Parse(doc *goquery.Document) (*parser_factory.Warehouse
 			{
 				whi.Location = yp.trimStr(sel.Text())
 			}
+		case "101":
+			{
+				whi.Class = yp.trimStr(sel.Text())
+			}
+		case "111":
+			{
+				whi.ServiceClass = yp.trimStr(sel.Text())
+			}
+		case "116":
+			{
+				whi.ServiceRegion = yp.trimStr(sel.Text())
+			}
 		}
-		//elems := strings.Split(udata, "\n")
-		//fmt.Printf("%s ", udata)
 	})
 
-	/*doc.Find(".cb210_c2").Each(func(i int, sel *goquery.Selection) {
-		sel.Find("p").Each(func(ii int, elems *goquery.Selection) {
-			udata := mahonia.NewDecoder("gbk").ConvertString(elems.Text())
-			udata = strings.Replace(udata, "\n", "", -1)
-			fmt.Printf("%s ", udata)
+	doc.Find(".basis-info-content div").Each(func(i int, sel *goquery.Selection) {
+		/*val, exists := sel.Attr("data-reactid")
+		if !exists {
+			return
+		}*/
+		name := yp.trimStr(sel.Text())
+		if !strings.Contains(name, "建筑面积") {
+			return
+		}
+		sel.Find("span").Each(func(i int, spn *goquery.Selection) {
+			whi.Square = yp.trimStr(spn.Text())
 		})
 	})
 
-	fmt.Printf("\n")*/
+	doc.Find(".basis-function-content div").Each(func(i int, sel *goquery.Selection) {
+		name := yp.trimStr(sel.Text())
+		if !strings.Contains(name, "地面材料") {
+			return
+		}
+		sel.Find("span").Each(func(i int, spn *goquery.Selection) {
+			whi.FloorInfo = yp.trimStr(spn.Text())
+		})
+	})
+
+	doc.Find(".basis-fire-content div").Each(func(i int, sel *goquery.Selection) {
+		sel.Find("span").Each(func(i int, spn *goquery.Selection) {
+			whi.FireSystem = yp.trimStr(spn.Text())
+		})
+	})
 
 	return whi, nil
 }

@@ -18,7 +18,8 @@ type WarehouseInfo struct {
 }
 
 func (whi *WarehouseInfo) String() string {
-	return fmt.Sprintf("region: %s | location: %s | class: %s | square: %s | floorInfo: %s | fireSystem: %s | serviceClass: %s | serviceRegion: %s", whi.Region, whi.Location, whi.Class, whi.Square, whi.FloorInfo, whi.FireSystem, whi.ServiceClass, whi.ServiceRegion)
+	// region|location|class|squery|floorInfo|fireSytem|serviceClass|serviceRegion
+	return fmt.Sprintf("%s | %s | %s | %s | %s | %s | %s | %s", whi.Region, whi.Location, whi.Class, whi.Square, whi.FloorInfo, whi.FireSystem, whi.ServiceClass, whi.ServiceRegion)
 }
 
 func CreateWarehouseInfo() *WarehouseInfo {
