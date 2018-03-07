@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"runtime"
@@ -71,7 +72,8 @@ func main() {
 			return
 		}
 		// got the document by using goquery.
-		doc, err := goquery.NewDocumentFromResponse(r)
+		bodyReader := bytes.NewBuffer(r.Body)
+		doc, err := goquery.NewDocumentFromReader(bodyReader)
 		if err != nil {
 			fmt.Printf("failed to create the document from %s, err: %v\n", string(res.Body), err)
 		}
