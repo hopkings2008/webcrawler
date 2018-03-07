@@ -22,7 +22,7 @@ func main() {
 	ctx := webloop.New()
 	view := ctx.NewView()
 	defer view.Close()
-	warehouseHandle, err := os.Create("/tmp/dat2")
+	warehouseHandle, err := os.Create("./warehouseinfo.txt")
 	defer warehouseHandle.Close()
 	// Instantiate default collector
 	c := colly.NewCollector(
