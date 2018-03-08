@@ -17,6 +17,11 @@ import (
 )
 
 func main() {
+	gtk.Init(nil)
+	go func() {
+		runtime.LockOSThread()
+		gtk.Main()
+	}()
 	warehouseHandle, err := os.Create("./warehouseinfo.txt")
 	if err != nil {
 		fmt.Printf("failed to create warehouseinfo.txt, err: %v\n", err)
@@ -32,11 +37,6 @@ func main() {
 }
 
 func crawl(seed string, handle *os.File) {
-	gtk.Init(nil)
-	go func() {
-		runtime.LockOSThread()
-		gtk.Main()
-	}()
 	ctx := webloop.New()
 
 	// Instantiate default collector
