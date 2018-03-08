@@ -13,7 +13,8 @@ import (
 
 func main() {
 	testHtml := "./test.html"
-	warehouseHandle, err := os.Create("./warehouseinfo.txt")
+	//warehouseHandle, err := os.Create("./warehouseinfo.txt")
+	warehouseHandle, err := os.OpenFile("./warehouseinfo.txt", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		fmt.Printf("failed to create warehouseinfo.txt, err: %v\n", err)
 		return
@@ -50,6 +51,6 @@ func main() {
 	if whi.IsValid != 1 {
 		return
 	}
-	warehouseHandle.WriteString(whi.String())
+	warehouseHandle.WriteString(whi.String() + "\n")
 	warehouseHandle.Sync()
 }
