@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 	"runtime"
-	"time"
+	//"time"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gocolly/colly"
@@ -15,19 +15,27 @@ import (
 	"github.com/sourcegraph/webloop"
 )
 
-func main() {
-	gtk.Init(nil)
-	go func() {
-		runtime.LockOSThread()
-		gtk.Main()
-	}()
-	ctx := webloop.New()
+func main(){
 	warehouseHandle, err := os.Create("./warehouseinfo.txt")
 	if err != nil {
 		fmt.Printf("failed to create warehouseinfo.txt, err: %v\n", err)
 		return
 	}
 	defer warehouseHandle.Close()
+	for i:=1;i<=36;i++{
+		seed := fmt.Sprintf("https://market.c.cainiao.com/search/?pm=2&pn=%d&q=", i)
+		crawl(seed, warehouseHandle)
+	}
+}
+
+func crawl(seed string, handle *os.File) {
+	gtk.Init(nil)
+	go func() {
+		runtime.LockOSThread()
+		gtk.Main()
+	}()
+	ctx := webloop.New()
+	
 	// Instantiate default collector
 	c := colly.NewCollector(
 		// MaxDepth is 1, so only the links on the scraped page
@@ -35,11 +43,11 @@ func main() {
 		colly.MaxDepth(3),
 		//colly.AllowedDomains("https://market.c.cainiao.com"),
 	)
-	c.Limit(&colly.LimitRule{
+	/*c.Limit(&colly.LimitRule{
 		//DomainGlob:  "*httpbin.*",
 		//Parallelism: 2,
 		RandomDelay: 5 * time.Second,
-	})
+	})*/
 
 	// On every a element which has href attribute call callback
 	c.OnHTML("a[href]", func(e *colly.HTMLElement) {
@@ -96,11 +104,12 @@ func main() {
 		if whi.IsValid != 1 {
 			return
 		}
-		warehouseHandle.WriteString(whi.String())
-		warehouseHandle.Sync()
+		handle.WriteString(whi.String()+ "\n")
+		handle.Sync()
 	})
 
 	// Start scraping on https://en.wikipedia.org
 	//c.Visit("https://en.wikipedia.org/")
-	c.Visit("https://market.c.cainiao.com/search/?q=&pm=2")
+	//c.Visit("https://market.c.cainiao.com/search/?q=&pm=2")
+	c.Visit(seed)
 }
