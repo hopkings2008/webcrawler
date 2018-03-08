@@ -24,7 +24,7 @@ func (yp *CaiNiaoParser) Parse(doc *goquery.Document) (*parser_factory.Warehouse
 			infoType = 1
 			return
 		}
-		if strings.Contains(data, "服务行业") {
+		if strings.Contains(data, "仓库类型") {
 			infoType = 2
 			return
 		}
@@ -41,18 +41,22 @@ func (yp *CaiNiaoParser) Parse(doc *goquery.Document) (*parser_factory.Warehouse
 		case 1:
 			{
 				whi.Location = yp.trimStr(sel.Text())
+				infoType = 0
 			}
 		case 2:
 			{
 				whi.Class = yp.trimStr(sel.Text())
+				infoType = 0
 			}
 		case 3:
 			{
 				whi.ServiceClass = yp.trimStr(sel.Text())
+				infoType = 0
 			}
 		case 4:
 			{
 				whi.ServiceRegion = yp.trimStr(sel.Text())
+				infoType = 0
 			}
 		}
 	})
