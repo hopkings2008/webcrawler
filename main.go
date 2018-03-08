@@ -46,11 +46,11 @@ func crawl(seed string, handle *os.File) {
 		colly.MaxDepth(3),
 		//colly.AllowedDomains("https://market.c.cainiao.com"),
 		colly.Debugger(&debug.LogDebugger{}),
-		colly.Async(true),
+		//colly.Async(true),
 	)
 	c.Limit(&colly.LimitRule{
 		//DomainGlob:  "*httpbin.*",
-		Parallelism: 2,
+		//Parallelism: 2,
 		RandomDelay: 5 * time.Second,
 	})
 
@@ -120,5 +120,5 @@ func crawl(seed string, handle *os.File) {
 		urlSeed := fmt.Sprintf("https://market.c.cainiao.com/search/?pm=2&pn=%d&q=", i)
 		c.Visit(urlSeed)
 	}
-	c.Wait()
+	//c.Wait()
 }
