@@ -19,8 +19,17 @@ import (
 func main() {
 	gtk.Init(nil)
 	go func() {
-		runtime.LockOSThread()
+		//runtime.LockOSThread()
 		gtk.Main()
+	}()
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("Recovered in f", r)
+			gtk.Init(nil)
+			go func() {
+				gtk.Main()
+			}()
+		}
 	}()
 	warehouseHandle, err := os.Create("./warehouseinfo.txt")
 	if err != nil {
