@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 	"runtime"
-	//"time"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gocolly/colly"
@@ -27,6 +27,7 @@ func main() {
 		seed := fmt.Sprintf("https://market.c.cainiao.com/search/?pm=2&pn=%d&q=", i)
 		crawl(seed, warehouseHandle)
 	}*/
+	seed := "https://market.c.cainiao.com/search/?pm=2&pn=%d&q="
 	crawl(seed, warehouseHandle)
 }
 
@@ -116,8 +117,8 @@ func crawl(seed string, handle *os.File) {
 	//c.Visit("https://en.wikipedia.org/")
 	//c.Visit("https://market.c.cainiao.com/search/?q=&pm=2")
 	for i := 1; i <= 36; i++ {
-		urlSeed = fmt.Sprintf("https://market.c.cainiao.com/search/?pm=2&pn=%d&q=", i)
-		c.Visit(seed)
+		urlSeed := fmt.Sprintf("https://market.c.cainiao.com/search/?pm=2&pn=%d&q=", i)
+		c.Visit(urlSeed)
 	}
 	c.Wait()
 }
