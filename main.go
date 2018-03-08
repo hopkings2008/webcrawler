@@ -9,23 +9,25 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gocolly/colly"
+	"github.com/gocolly/colly/debug"
 	"github.com/gotk3/gotk3/gtk"
 	_ "github.com/hopkings/webcrawler/cainiao"
 	"github.com/hopkings/webcrawler/parser_factory"
 	"github.com/sourcegraph/webloop"
 )
 
-func main(){
+func main() {
 	warehouseHandle, err := os.Create("./warehouseinfo.txt")
 	if err != nil {
 		fmt.Printf("failed to create warehouseinfo.txt, err: %v\n", err)
 		return
 	}
 	defer warehouseHandle.Close()
-	for i:=1;i<=36;i++{
+	/*for i := 1; i <= 36; i++ {
 		seed := fmt.Sprintf("https://market.c.cainiao.com/search/?pm=2&pn=%d&q=", i)
 		crawl(seed, warehouseHandle)
-	}
+	}*/
+	crawl(seed, warehouseHandle)
 }
 
 func crawl(seed string, handle *os.File) {
@@ -35,19 +37,21 @@ func crawl(seed string, handle *os.File) {
 		gtk.Main()
 	}()
 	ctx := webloop.New()
-	
+
 	// Instantiate default collector
 	c := colly.NewCollector(
 		// MaxDepth is 1, so only the links on the scraped page
 		// is visited, and no further links are followed
 		colly.MaxDepth(3),
 		//colly.AllowedDomains("https://market.c.cainiao.com"),
+		colly.Debugger(&debug.LogDebugger{}),
+		colly.Async(true),
 	)
-	/*c.Limit(&colly.LimitRule{
+	c.Limit(&colly.LimitRule{
 		//DomainGlob:  "*httpbin.*",
-		//Parallelism: 2,
+		Parallelism: 2,
 		RandomDelay: 5 * time.Second,
-	})*/
+	})
 
 	// On every a element which has href attribute call callback
 	c.OnHTML("a[href]", func(e *colly.HTMLElement) {
@@ -104,12 +108,16 @@ func crawl(seed string, handle *os.File) {
 		if whi.IsValid != 1 {
 			return
 		}
-		handle.WriteString(whi.String()+ "\n")
+		handle.WriteString(whi.String() + "\n")
 		handle.Sync()
 	})
 
 	// Start scraping on https://en.wikipedia.org
 	//c.Visit("https://en.wikipedia.org/")
 	//c.Visit("https://market.c.cainiao.com/search/?q=&pm=2")
-	c.Visit(seed)
+	for i := 1; i <= 36; i++ {
+		urlSeed = fmt.Sprintf("https://market.c.cainiao.com/search/?pm=2&pn=%d&q=", i)
+		c.Visit(seed)
+	}
+	c.Wait()
 }
